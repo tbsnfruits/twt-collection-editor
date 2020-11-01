@@ -1,10 +1,10 @@
 (ns twt-collection-editor.core
   (:gen-class)
-  (:use [twitter.oauth]
-        [twitter.callbacks]
-        [twitter.callbacks.handlers]
-        [twitter.api.restful]
-        [twitter.api.streaming])
+  (:require [twitter.oauth :refer :all]
+            [twitter.callbacks :refer :all]
+            [twitter.callbacks.handlers :refer :all]
+            [twitter.api.streaming :refer :all]
+            [twitter.api.restful :refer :all])
   (:require [clojure.data.json :as json]
             [http.async.client :as ac])
   (:import [twitter.callbacks.protocols AsyncStreamingCallback]))
