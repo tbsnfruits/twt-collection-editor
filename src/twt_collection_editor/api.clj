@@ -1,28 +1,36 @@
 (ns twt-collection-editor.api
-  (:require [clojure.data.json :as json]
+  (:require [cheshire.core :refer :all]
             [clj-http.client :as client]
             [twt-collection-editor.auth :as auth]))
 
-(defn collections-entries
-  "makes GET collections/entries request"
-  ;e.g.) (collections-entries :id "custom-1287073494606389248" :count 10 :max_position "418302462296924481")
-  [& {:as user-params}]
-  (let [url "https://api.twitter.com/1.1/collections/entries.json"]
-    (client/get url
-                {:query-params   (merge (auth/credentials :get url user-params) user-params)
-                 :cookie-policy  :standard
-                 :decode-cookies false})))
+(def apis {:collections-entries        {:method :get
+                                         :url    "https://api.twitter.com/1.1/collections/entries.json"}
+            :collections-entries-add    {:method :post
+                                         :url    "https://api.twitter.com/1.1/collections/entries/add.json"}
+            :collections-entries-curate {:method :post
+                                         :url    "https://api.twitter.com/1.1/collections/entries/curate.json"}
+            :collections-entries-move   {:method :post
+                                         :url    "https://api.twitter.com/1.1/collections/entries/move.json"}
+            :collections-entries-remove {:method :post
+                                         :url    "https://api.twitter.com/1.1/collections/entries/remove.json"}})
 
-(defn collections-entries-add
-  "makes POST collections/entries/add request"
-  ;e.g.) (collections-entries-add :id "custom-1287073494606389248" :tweet_id "390839888012382208")
-  [& {:as user-params}]
-  (let [url "https://api.twitter.com/1.1/collections/entries/add.json"]
-    (client/post url
-                 {:query-params   (merge (auth/credentials :post url user-params) user-params)
-                  :cookie-policy  :standard
-                  :decode-cookies false})))
+(defmacro make-endpoint-function
+  [endpoint-name]
+  (let [endpoint (endpoint-name apis)
+             method (:method endpoint)
+             url (:url endpoint)]
+    `(defn ~(symbol endpoint-name)
+       [& {:as params#}]
+       (~(symbol (str "client/" (name method))) ~url
+         {:query-params   (merge (auth/credentials ~method ~url params#) params#)
+          :cookie-policy  :standard
+          :decode-cookies false}) )))
 
+(make-endpoint-function :collections-entries)
+(make-endpoint-function :collections-entries-add)
+;(make-endpoint-function :collections-entries-curate)        ;curate not working yet
+(make-endpoint-function :collections-entries-move)
+(make-endpoint-function :collections-entries-remove)
 
 ;;TODO - unfinished below
 (defn collections-entries-curate
@@ -37,18 +45,16 @@
   [& {:as body}]
   (let [url "https://api.twitter.com/1.1/collections/entries/curate.json"]
     (client/post url
-                 {:query-params   (merge (auth/credentials :post url body) body)
-                  :body (json/write-str body)
-                  :cookie-policy  :standard
-                  :content-type :application/json
-                  :decode-cookies false})))
+                 {:query-params (auth/credentials :post url body)
+                  :headers             {}
+                  :body                (generate-string body)
+                  :cookie-policy       :standard
+                  :content-type        :application/json
+                  :decode-cookies      false
+                  :debug?              true
+                  :debug-body true})))
 
-;;TODO - solve error from expression below
 (collections-entries-curate :id "custom-1287073494606389248"
-                            :changes [{:op "add",
-                                       :tweet_id "390839888012382208"}
-                                      {:op "add",
-                                       :tweet_id          "390897780949925889",
-                                       :relative_to "1240723216412205062",
-                                       :above       false}])
+                            :changes {:op       "add",
+                                      :tweet_id "390839888012382208"})
 

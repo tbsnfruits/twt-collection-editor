@@ -1,6 +1,6 @@
 (ns twt-collection-editor.core
   (:gen-class)
-  (:require [clojure.data.json :as json]
+  (:require [cheshire.core :refer :all]
             [twt-collection-editor.api :as api]))
 
 (def coll-ids ["custom-1287073494606389248"
@@ -8,10 +8,9 @@
                "custom-1279095780536537088"
                "custom-1279471953917521920"])
 
-
 (defn get-body [response]
   "returns the body of response as a map"
-  (json/read-str (:body response) :key-fn keyword))
+  (parse-string (:body response) :key-fn keyword))
 
 (defn count-response
   "Counts the tweets in GET collection/entries response body from argument"
@@ -64,12 +63,7 @@
      "https://api.twitter.com/1.1/collections/entries/curate.json"
      "-X" "POST"
      "-H" "Content-Type: application/json"
-     "-H" "Accept-Encoding: gzip;q=1.0,deflate;q=0.6,identity;q=0.3"
-     "-H" "Accept: */*"
-     "-H" "User-Agent: twurl version: 0.9.6 platform: ruby 2.7.0 (x86_64-linux-gnu)"
      "-H" "Authorization: OAuth oauth_consumer_key=\"Ux0vpJwZ72OdgrqtDOrKYU0xs\", oauth_nonce=\"TYu6xe6rW2Ek0jSXZxfeDCQ4LNeFBCL3uFCIwjw\", oauth_signature=\"e77i4%2BbKq2c5hMWf51cBv8J7Mys%3D\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1604826460\", oauth_token=\"348192116-UKpbWbYDgn5uB8L3OtSKxMF3pmzblYvh2R0k8aPj\", oauth_version=\"1.0\""
-     "-H" "Connection: close"
-     "-H" "Content-Length: 201"
      "-d"
      (json/write-str
        {:id      collection-id,
