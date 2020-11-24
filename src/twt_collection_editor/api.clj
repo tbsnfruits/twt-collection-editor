@@ -24,15 +24,14 @@
        (~(symbol (str "client/" (name method))) ~url
          {:query-params   (merge (auth/credentials ~method ~url params#) params#)
           :cookie-policy  :standard
-          :decode-cookies false}) )))
+          :decode-cookies false
+          :debug? true}) )))
 
 (make-endpoint-function :collections-entries)
 (make-endpoint-function :collections-entries-add)
-;(make-endpoint-function :collections-entries-curate)        ;curate not working yet
 (make-endpoint-function :collections-entries-move)
 (make-endpoint-function :collections-entries-remove)
 
-;;TODO - unfinished below
 (defn collections-entries-curate
   "makes POST collections/entries/curate request"
   ;e.g.) (collections-entries-curate :id "custom-1287073494606389248"
@@ -45,16 +44,18 @@
   [& {:as body}]
   (let [url "https://api.twitter.com/1.1/collections/entries/curate.json"]
     (client/post url
-                 {:query-params (auth/credentials :post url body)
-                  :headers             {}
-                  :body                (generate-string body)
-                  :cookie-policy       :standard
-                  :content-type        :application/json
-                  :decode-cookies      false
-                  :debug?              true
-                  :debug-body true})))
+                 {:query-params     (auth/credentials :post url {}) ;NO user parameter or body to be passed to create signature
+                  :headers          {"Content-Type"  "application/json"}
+                  :body             (generate-string body)
+                  :cookie-policy    :standard
+                  :decode-cookies   false
+                  :debug?           true
+                  :debug-body       true
+                  :throw-exceptions false})))
 
-(collections-entries-curate :id "custom-1287073494606389248"
-                            :changes {:op       "add",
-                                      :tweet_id "390839888012382208"})
+(collections-entries-curate :id "custom-1279095780536537088"
+                            :changes [{:op       "add",
+                                      :tweet_id "390897780949925889"}
+                                      {:op       "add",
+                                       :tweet_id "390853164611555329"}])
 
