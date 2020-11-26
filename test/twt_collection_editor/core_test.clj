@@ -7,3 +7,4 @@
     (is (= 0 1))))
 
 
+;twitter-api 라이브러리의 test 읽어보기

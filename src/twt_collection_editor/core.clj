@@ -3,14 +3,14 @@
   (:require [cheshire.core :refer :all]
             [twt-collection-editor.api :as api]))
 
-(def coll-ids ["custom-1287073494606389248"
+(def coll-ids ["custom-1287073494606389248"                 ;for test
                "custom-1278372356419813377"
                "custom-1279095780536537088"
                "custom-1279471953917521920"])
 
 (defn get-body [response]
   "returns the body of response as a map"
-  (parse-string (:body response) :key-fn keyword))
+  (parse-string (:body response) true))
 
 (defn count-response
   "Counts the tweets in GET collection/entries response body from argument"
@@ -49,31 +49,12 @@
         (recur (api/collections-entries :id coll-id :count 200 :min_position min-pos) (+ acc-num (count-response response-body)))
         (+ acc-num (count-response response-body))))))
 
-;;TODO - renew codes below according to current api/collections-entries function.
-(defn -main [])
-
-(comment
-
 (defn post-after [coll-id tw-id relative-to]
-   (api/collections-entries-add :oauth-creds creds :params {:id coll-id :tweet_id tw-id :relative_to relative-to :above false}))
+  (api/collections-entries-add :id coll-id :tweet_id tw-id :relative_to relative-to :above false))
 
- (defn curate [collection-id tweets-to-add]
-   (clojure.java.shell/sh
-     "curl" "--compressed" "-q"
-     "https://api.twitter.com/1.1/collections/entries/curate.json"
-     "-X" "POST"
-     "-H" "Content-Type: application/json"
-     "-H" "Authorization: OAuth oauth_consumer_key=\"Ux0vpJwZ72OdgrqtDOrKYU0xs\", oauth_nonce=\"TYu6xe6rW2Ek0jSXZxfeDCQ4LNeFBCL3uFCIwjw\", oauth_signature=\"e77i4%2BbKq2c5hMWf51cBv8J7Mys%3D\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1604826460\", oauth_token=\"348192116-UKpbWbYDgn5uB8L3OtSKxMF3pmzblYvh2R0k8aPj\", oauth_version=\"1.0\""
-     "-d"
-     (json/write-str
-       {:id      collection-id,
-        :changes (mapv #(merge {:op "add"} %)
-                       tweets-to-add)})))
+;; TODO- add migrate to, write test
 
- (curate "custom-1279095780536537088"
-         [{:tweet_id    "390897780949925889",
-           :relative_to "1240723216412205062",
-           :above       false}
-          {:tweet_id "390853164611555329"}]))
+(defn migrate-to [from-coll to-coll]
+  )
 
-
+(defn -main [])
