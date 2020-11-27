@@ -3,8 +3,7 @@
   (:require [cheshire.core :refer :all]
             [twt-collection-editor.api :as api]))
 
-(def coll-ids ["custom-1287073494606389248"                 ;for test
-               "custom-1278372356419813377"
+(def coll-ids ["custom-1278372356419813377"
                "custom-1279095780536537088"
                "custom-1279471953917521920"])
 

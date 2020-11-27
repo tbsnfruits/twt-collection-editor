@@ -25,7 +25,8 @@
          {:query-params   (merge (auth/credentials ~method ~url params#) params#)
           :cookie-policy  :standard
           :decode-cookies false
-          :debug? true}) )))
+          ;:debug? true
+          }) )))
 
 (make-endpoint-function :collections-entries)
 (make-endpoint-function :collections-entries-add)
@@ -37,11 +38,12 @@
   [& {:as body}]
   (let [url "https://api.twitter.com/1.1/collections/entries/curate.json"]
     (http/post url
-                 {:query-params     (auth/credentials :post url {}) ;NO user parameter or body to be passed to create signature
-                  :headers          {"Content-Type"  "application/json"}
-                  :body             (generate-string body)
-                  :cookie-policy    :standard
-                  :decode-cookies   false
-                  :debug?           true
-                  :debug-body       true
-                  :throw-exceptions false})))
+               {:query-params   (auth/credentials :post url {}) ;NO user parameter or body to be passed to create signature
+                :headers        {"Content-Type" "application/json"}
+                :body           (generate-string body)
+                :cookie-policy  :standard
+                :decode-cookies false
+                ;:debug?           true
+                ;:debug-body       true
+                ;:throw-exceptions false
+                })))

@@ -2,14 +2,28 @@
   (:require [clojure.test :refer :all]
             [twt-collection-editor.api :refer :all]))
 
-;각 api endpoint 정상작동여부 확인
+(def test-coll-id "custom-1287073494606389248")
+(def test-tweet1 "652174303283277825")
+(def test-tweet2 "651780213496545280")
 
-(comment
-  (collections-entries-curate :id "custom-1279095780536537088"
-                              :changes [{:op       "add",
-                                         :tweet_id "390897780949925889"}
-                                        {:op       "add",
-                                         :tweet_id "390853164611555329"
-                                         :relative-to "390897780949925889"
-                                         :above false}]))
-
+(deftest endpoint
+  (testing "all collection/entries endpoints"
+    (is (= 200 (:status (collections-entries :id test-coll-id))))
+    (is (= 200 (:status (collections-entries-add :id test-coll-id
+                                                 :tweet_id test-tweet1))))
+    (is (= 200 (:status (collections-entries-move :id test-coll-id
+                                                  :tweet_id test-tweet1
+                                                  :relative_to "1286950122987778048"
+                                                  :above false))))
+    (is (= 200 (:status (collections-entries-remove :id test-coll-id
+                                                    :tweet_id test-tweet1))))
+    (is (= 200 (:status (collections-entries-curate :id test-coll-id
+                                                    :changes [{:op       "add",
+                                                               :tweet_id test-tweet1}
+                                                              {:op       "add",
+                                                               :tweet_id test-tweet2}]))))
+    (is (= 200 (:status (collections-entries-curate :id test-coll-id
+                                                    :changes [{:op       "remove",
+                                                               :tweet_id test-tweet1}
+                                                              {:op       "remove",
+                                                               :tweet_id test-tweet2}]))))))
