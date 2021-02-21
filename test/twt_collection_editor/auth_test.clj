@@ -3,18 +3,17 @@
             [twt-collection-editor.auth :refer :all]
             [clj-http.client :as http]))
 
+;TODO- debug errors from (run-tests)
 (defn get-username []
   (println "Enter the screen name of current credential you're using.")
-  (clojure.string/trim (read-line))
-  )
+  (clojure.string/trim (read-line)))
 
 (def user-profile
   (let [url "https://api.twitter.com/1.1/account/verify_credentials.json"]
     (http/get url
               {:query-params   (credentials :get url {})
                :cookie-policy  :standard
-               :decode-cookies false
-               })))
+               :decode-cookies false})))
 
 (deftest test-auth
   (testing "if all key & secret is provided"
@@ -30,6 +29,4 @@
     (is (= (get-username) (-> user-profile
                             (:body)
                             (cheshire.core/parse-string true)
-                            (:screen_name)))))
-
-  )
+                            (:screen_name))))))

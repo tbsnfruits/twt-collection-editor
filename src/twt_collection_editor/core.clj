@@ -26,34 +26,55 @@
   [response-body]
   (get-in response-body [:response :position :was_truncated]))
 
-(defn last-tweet
-  "Returns the id of the last tweet in the argument collection"
-  [coll-id]
-  (loop [response-body (get-body (api/collections-entries :id coll-id :count 200))]
-    (let [min-pos (min-position response-body)]
-      (if (truncated? response-body)
-        (recur (get-body (api/collections-entries :id coll-id :count 200 min-pos)))
-        (-> (get-in response-body [:response :timeline])
-            (last)
-            (get-in [:tweet :id]))))))
+(defn get-timeline
+  "returns the timeline of response body as a list"
+  [response-body]
+  (->> response-body
+       :response
+       :timeline
+       (map #(get-in % [:tweet :id]))))
 
-(defn count-collection
-  "Counts the total number of tweets in the collection from argument"
+;last-tweet, count-tweets는 list-tweets를 이용가능하므로 생략
+
+(defn list-tweets
+  "Return the total list of tweet ids in the collection from argument"
   [coll-id]
   (loop [response-body (get-body (api/collections-entries :id coll-id :count 200))
-         acc-num 0]
-    (println acc-num)                                       ;line for probing
-    (let [min-pos (min-position response-body)]
+         acc '()]
+    (let [min-pos (min-position response-body)
+          timeline (get-timeline response-body)]
+      (println "min-pos:" min-pos " truncated?:" (truncated? response-body)) ;for probing
+      (println (last timeline))
       (if (truncated? response-body)
-        (recur (api/collections-entries :id coll-id :count 200 :min_position min-pos) (+ acc-num (count-response response-body)))
-        (+ acc-num (count-response response-body))))))
+        (recur (get-body (api/collections-entries :id coll-id :count 200 :max_position min-pos)) (concat acc timeline))
+        (concat acc timeline)))))
 
-(defn post-after [coll-id tw-id relative-to]
-  (api/collections-entries-add :id coll-id :tweet_id tw-id :relative_to relative-to :above false))
+(defn remove-twts [coll-id tw-ids]
+  (doseq [tw-ids (partition-all 100 tw-ids)]
+    (let [changes (reduce (fn [acc tw-id]
+                            (conj acc {:op       "remove"
+                                       :tweet_id tw-id}))
+                          []
+                          tw-ids)]
+      (println (count changes))
+      (println (get-body (api/collections-entries-curate :id coll-id :changes changes))))))
 
-;; TODO- add migrate to, write test
+(defn remove-twts-all [coll-id]
+  (let [tw-ids (->> (get-body (api/collections-entries :id coll-id))
+                    :response
+                    :timeline
+                    (map #(get-in % [:tweet :id])))]
+    (remove-twts coll-ids tw-ids)))                         ;에러발생///웨
 
-(defn migrate-to [from-coll to-coll]
-  )
+(defn migrate-after [from to]
+  "from 콜렉션의 트윗들을 to 콜렉션의 하단에 추가한다. from에는 한개 이상의 트윗이 있어야함"
+  (let [tw-ids (list-tweets from)
+        head (last (list-tweets to))
+        order (partition 2 1 (cons head tw-ids))]
+    (doseq [step order
+            :let [tw-id (second step)
+                  relative-to (first step)]]
+      (println tw-id)
+      (println (get-body (api/collections-entries-add :id to :tweet_id tw-id :relative_to relative-to :above false))))))
 
 (defn -main [])

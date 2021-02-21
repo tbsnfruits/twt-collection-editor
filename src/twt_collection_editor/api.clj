@@ -26,7 +26,8 @@
           :cookie-policy  :standard
           :decode-cookies false
           ;:debug? true
-          }) )))
+          :throw-entire-message? true
+          }))))
 
 (make-endpoint-function :collections-entries)
 (make-endpoint-function :collections-entries-add)
