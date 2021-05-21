@@ -5,7 +5,7 @@
 
 (def coll-ids ["custom-1278372356419813377"
                "custom-1279095780536537088"
-               "custom-1279471953917521920"])
+               "custom-1279471953917521920"])               ;not valid anymore
 
 (defn get-body [response]
   "returns the body of response as a map"
@@ -65,6 +65,19 @@
                     :timeline
                     (map #(get-in % [:tweet :id])))]
     (remove-twts coll-ids tw-ids)))                         ;에러발생///웨
+
+(defn add-twt-list-to [collection list]
+  "Add tweets in list to the bottom of colllection.
+  The added tweets will be shown in the same order with the list.
+  collection should have more than 1 tweets in it."
+  (let [tw-ids list
+        head (last (list-tweets collection))
+        order (partition 2 1 (cons head tw-ids))]
+    (doseq [step order
+            :let [tw-id (second step)
+                  relative-to (first step)]]
+      (println tw-id)
+      (println (get-body (api/collections-entries-add :id collection :tweet_id tw-id :relative_to relative-to :above false))))))
 
 (defn migrate-after [from to]
   "from 콜렉션의 트윗들을 to 콜렉션의 하단에 추가한다. from에는 한개 이상의 트윗이 있어야함"

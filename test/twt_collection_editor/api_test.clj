@@ -43,8 +43,8 @@
                                                                :relative_to (test-tweet :kim)
                                                                :above true
                                                                }]))))
-    (is (= 200 (:status (collections-entries-curate :id test-coll-id
-                                                    :changes [{:op       "remove",
-                                                               :tweet_id test-tweet1}
-                                                              {:op       "remove",
-                                                               :tweet_id test-tweet2}]))))))
+    (comment (is (= 200 (:status (collections-entries-curate :id test-coll-id
+                                                     :changes [{:op       "remove",
+                                                                :tweet_id test-tweet1}
+                                                               {:op       "remove",
+                                                                :tweet_id test-tweet2}])))))))

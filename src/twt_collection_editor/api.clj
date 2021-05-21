@@ -4,27 +4,29 @@
             [twt-collection-editor.auth :as auth]))
 
 (def apis {:collections-entries        {:method :get
-                                         :url    "https://api.twitter.com/1.1/collections/entries.json"}
-            :collections-entries-add    {:method :post
-                                         :url    "https://api.twitter.com/1.1/collections/entries/add.json"}
-            :collections-entries-curate {:method :post
-                                         :url    "https://api.twitter.com/1.1/collections/entries/curate.json"}
-            :collections-entries-move   {:method :post
-                                         :url    "https://api.twitter.com/1.1/collections/entries/move.json"}
-            :collections-entries-remove {:method :post
-                                         :url    "https://api.twitter.com/1.1/collections/entries/remove.json"}})
+                                        :url    "https://api.twitter.com/1.1/collections/entries.json"}
+           :collections-entries-add    {:method :post
+                                        :url    "https://api.twitter.com/1.1/collections/entries/add.json"}
+           :collections-entries-curate {:method :post
+                                        :url    "https://api.twitter.com/1.1/collections/entries/curate.json"}
+           :collections-entries-move   {:method :post
+                                        :url    "https://api.twitter.com/1.1/collections/entries/move.json"}
+           :collections-entries-remove {:method :post
+                                        :url    "https://api.twitter.com/1.1/collections/entries/remove.json"}
+           :collections-show           {:method :get
+                                        :url    "https://api.twitter.com/1.1/collections/show.json"}})
 
 (defmacro make-endpoint-function
   [endpoint-name]
   (let [endpoint (endpoint-name apis)
-             method (:method endpoint)
-             url (:url endpoint)]
+        method (:method endpoint)
+        url (:url endpoint)]
     `(defn ~(symbol endpoint-name)
        [& {:as params#}]
        (~(symbol (str "http/" (name method))) ~url
-         {:query-params   (merge (auth/credentials ~method ~url params#) params#)
-          :cookie-policy  :standard
-          :decode-cookies false
+         {:query-params          (merge (auth/credentials ~method ~url params#) params#)
+          :cookie-policy         :standard
+          :decode-cookies        false
           ;:debug? true
           :throw-entire-message? true
           }))))

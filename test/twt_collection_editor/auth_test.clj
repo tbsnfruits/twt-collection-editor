@@ -5,7 +5,7 @@
 
 ;TODO- debug errors from (run-tests)
 (defn get-username []
-  (println "Enter the screen name of current credential you're using.")
+  (println "\n> Enter the screen name of current credential you're using.")
   (clojure.string/trim (read-line)))
 
 (def user-profile
